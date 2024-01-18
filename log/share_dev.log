@@ -1,0 +1,8 @@
+[2024-01-18 19:00:35,795][myapi.py:86][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 19:02:50,884][myapi.py:86][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 20:54:01,540][myapi.py:86][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 20:58:25,490][myapi.py:87][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 21:40:44,518][myapi.py:87][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 21:42:12,606][myapi.py:87][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 21:43:14,500][myapi.py:87][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 21:45:17,667][myapi.py:87][ERROR] - 创建数据库连接失败 No module named 'pymysql'
