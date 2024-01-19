@@ -12,13 +12,8 @@ from logging.handlers import TimedRotatingFileHandler
 # 日志类
 class Logger():
     def __init__(self,log_name):
-
         LOG_NAME = log_name
-        #LOG_NAME = 'wangsu_cdn_python'
-        #global CONFIG
         LOG_PATH = os.getcwd() + os.sep + "log" + os.sep
-        # LOG_PATH = CONFIG['LOG_PATH']
-        #LOG_PATH = './log/'
         if not os.path.exists(LOG_PATH):
             os.mkdir(LOG_PATH)
         LOG_FILE = LOG_PATH + f"{LOG_NAME}.log"
