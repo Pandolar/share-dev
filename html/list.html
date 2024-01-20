@@ -1,358 +1,347 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>table 组件综合演示 - Layui</title>
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.staticfile.org/layui/2.9.4/css/layui.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <title>管理界面布局示例 - Layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.staticfile.org/layui/2.9.4/css/layui.css" rel="stylesheet">
 </head>
+
 <body>
-<!--
-本「综合演示」包含：自定义头部工具栏、获取表格数据、表格重载、自定义模板、单双行显示、单元格编辑、自定义底部分页栏、表格相关事件与操作、与其他组件的结合等相对常用的功能，以便快速掌握 table 组件的使用。
--->
-<div style="padding: 16px;">
-  <table class="layui-hide" id="test" lay-filter="test"></table>
+
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo layui-hide-xs layui-bg-black">管理界面布局</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:">管理页面</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:">首页</a></dd>
+                        <dd><a href="javascript:" id="user-management">用户管理</a></dd>
+                        <dd><a href="javascript:">车辆管理</a></dd>
+                        <dd><a href="javascript:">系统设置</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="https://foxaigc.com">关于页面</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 此处添加内容主体区域 -->
+        <div style="padding: 15px;">
+            <!-- 用户管理表格区域 -->
+            <div id="user-table" style="display: none;">
+                <button id="add-user" class="layui-btn layui-btn-normal">新增</button>
+                <button id="edit-user" class="layui-btn layui-btn-normal">编辑</button>
+
+                <table id="userTable" lay-filter="userTable"></table>
+            </div>
+            <!-- 更多内容 -->
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        底部固定区域
+    </div>
+    <!-- 新增用户的表单 -->
+    <div id="add-user-form" style="display: none;">
+        <form class="layui-form" lay-filter="add-user-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户代码</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="user_code" required lay-verify="required" placeholder="请输入用户代码" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">昵称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">车辆ID</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="carid" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">Plus用户</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="is_plus" lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">过期时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="expiration_date" class="layui-input" id="expiration-date">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="email" required lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">自动换车</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="auto_car"  lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="state" lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline">
+                    <textarea name="remark" placeholder="请输入备注" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- 编辑用户的表单 -->
+<!-- 编辑用户的表单 -->
+<div id="edit-user-form" style="display: none;">
+    <form class="layui-form" lay-filter="edit-user-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户代码</label>
+            <div class="layui-input-inline">
+                <input type="text" name="user_code" required lay-verify="required" placeholder="请输入用户代码" autocomplete="off" class="layui-input" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">昵称</label>
+            <div class="layui-input-inline">
+                <input type="text" name="nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">车辆ID</label>
+            <div class="layui-input-inline">
+                <input type="text" name="carid" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
+            </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">Plus用户</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="is_plus" lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">过期时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="expiration_date" class="layui-input" id="expiration-date">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="email" required lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">自动换车</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="auto_car"  lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="state" lay-skin="switch" lay-text="1|0" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline">
+                    <textarea name="remark" placeholder="请输入备注" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
-<script type="text/html" id="toolbarDemo">
-  <div class="layui-btn-container">
-    <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
-    <button class="layui-btn layui-btn-sm" lay-event="getData">获取当前页数据</button>
-    <button class="layui-btn layui-btn-sm" id="dropdownButton">
-      下拉按钮
-      <i class="layui-icon layui-icon-down layui-font-12"></i>
-    </button>
-    <button class="layui-btn layui-btn-sm layui-bg-blue" id="reloadTest">
-      重载测试
-      <i class="layui-icon layui-icon-down layui-font-12"></i>
-    </button>
-    <button class="layui-btn layui-btn-sm layui-btn-primary" id="rowMode">
-      <span>{{= d.lineStyle ? '多行' : '单行' }}模式</span>
-      <i class="layui-icon layui-icon-down layui-font-12"></i>
-    </button>
-  </div>
-</script>
-<script type="text/html" id="barDemo">
-  <div class="layui-clear-space">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-    <a class="layui-btn layui-btn-xs" lay-event="more">
-      更多
-      <i class="layui-icon layui-icon-down"></i>
-    </a>
-  </div>
-</script>
+
 <script src="https://cdn.staticfile.org/layui/2.9.4/layui.js"></script>
+
 <script>
-layui.use(['table', 'dropdown'], function(){
-  var table = layui.table;
-  var dropdown = layui.dropdown;
+    layui.use(['form', 'laydate', 'table', 'jquery'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var table = layui.table;
+        var $ = layui.jquery;
 
-  // 创建渲染实例
-  table.render({
-    elem: '#test',
-    url: '/static/json/2/table/demo1.json', // 此处为静态模拟数据，实际使用时需换成真实接口
-    toolbar: '#toolbarDemo',
-    defaultToolbar: ['filter', 'exports', 'print', {
-      title: '提示',
-      layEvent: 'LAYTABLE_TIPS',
-      icon: 'layui-icon-tips'
-    }],
-    height: 'full-35', // 最大高度减去其他容器已占有的高度差
-    css: [ // 重设当前表格样式
-      '.layui-table-tool-temp{padding-right: 145px;}'
-    ].join(''),
-    cellMinWidth: 80,
-    totalRow: true, // 开启合计行
-    page: true,
-    cols: [[
-      {type: 'checkbox', fixed: 'left'},
-      {field:'id', fixed: 'left', width:80, title: 'ID', sort: true, totalRowText: '合计：'},
-      {field:'username', width:80, title: '用户'},
-      {field:'email', title:'邮箱 <i class="layui-icon layui-icon-tips layui-font-14" lay-event="email-tips" title="该字段开启了编辑功能" style="margin-left: 5px;"></i>', fieldTitle: '邮箱', hide: 0, width:150, expandedMode: 'tips', edit: 'text'},
-      {field:'sex', width:80, title: '性别', sort: true},
-      {field:'sign', title: '签名', edit: 'textarea', minWidth: 260, expandedWidth: 260, totalRow: '人物：<span class="layui-badge-rim">唐代：{{= d.TOTAL_ROW.era.tang }} </span> <span class="layui-badge-rim">宋代：{{= d.TOTAL_ROW.era.song }}</span> <span class="layui-badge-rim">现代：{{= d.TOTAL_ROW.era.xian }}</span>'},
-      {field:'experience', width: 100, title: '积分', sort: true, totalRow: '{{= d.TOTAL_NUMS }} 😊'},
-      {field:'checkin', title:'打卡', width: 100, sort: true, totalRow: '{{= parseInt(d.TOTAL_NUMS) }} 次'},
-      {field:'ip', title:'IP', width: 120},
-      {field:'joinTime', title:'加入时间', width: 120},
-      {fixed: 'right', title:'操作', width: 134, minWidth: 125, toolbar: '#barDemo'}
-    ]],
-    done: function(){
-      var id = this.id;
-      // 下拉按钮测试
-      dropdown.render({
-        elem: '#dropdownButton', // 可绑定在任意元素中，此处以上述按钮为例
-        data: [{
-          id: 'add',
-          title: '添加'
-        },{
-          id: 'update',
-          title: '编辑'
-        },{
-          id: 'delete',
-          title: '删除'
-        }],
-        // 菜单被点击的事件
-        click: function(obj){
-          var checkStatus = table.checkStatus(id)
-          var data = checkStatus.data; // 获取选中的数据
-          switch(obj.id){
-            case 'add':
-              layer.open({
-                title: '添加',
-                type: 1,
-                area: ['80%','80%'],
-                content: '<div style="padding: 16px;">自定义表单元素</div>'
-              });
-            break;
-            case 'update':
-              if(data.length !== 1) return layer.msg('请选择一行');
-              layer.open({
-                title: '编辑',
-                type: 1,
-                area: ['80%','80%'],
-                content: '<div style="padding: 16px;">自定义表单元素</div>'
-              });
-            break;
-            case 'delete':
-              if(data.length === 0){
-                return layer.msg('请选择一行');
-              }
-              layer.msg('delete event');
-            break;
-          }
-        }
-      });
+        // 初始化日期选择器
+        laydate.render({
+            elem: '#expiration-date',
+            type: 'datetime'
+        });
 
-      // 重载测试
-      dropdown.render({
-        elem: '#reloadTest', // 可绑定在任意元素中，此处以上述按钮为例
-        data: [{
-          id: 'reload',
-          title: '重载'
-        },{
-          id: 'reload-deep',
-          title: '重载 - 参数叠加'
-        },{
-          id: 'reloadData',
-          title: '仅重载数据'
-        },{
-          id: 'reloadData-deep',
-          title: '仅重载数据 - 参数叠加'
-        }],
-        // 菜单被点击的事件
-        click: function(obj){
-          switch(obj.id){
-            case 'reload':
-              // 重载 - 默认（参数重置）
-              table.reload('test', {
-                where: {
-                  abc: '123456',
-                  //test: '新的 test2',
-                  //token: '新的 token2'
-                },
-                /*
-                cols: [[ // 重置表头
-                  {type: 'checkbox', fixed: 'left'},
-                  {field:'id', title:'ID', width:80, fixed: 'left', unresize: true, sort: true, totalRowText: '合计：'},
-                  {field:'sex', title:'性别', width:80, edit: 'text', sort: true},
-                  {field:'experience', title:'积分', width:80, sort: true, totalRow: true, templet: '<div>{{= d.experience }} 分</div>'},
-                  {field:'logins', title:'登入次数', width:100, sort: true, totalRow: true},
-                  {field:'joinTime', title:'加入时间', width:120}
-                ]]
-                */
-              });
-            break;
-            case 'reload-deep':
-              // 重载 - 深度（参数叠加）
-              table.reload('test', {
-                where: {
-                  abc: 123,
-                  test: '新的 test1'
-                },
-                //defaultToolbar: ['print'], // 重载头部工具栏右侧图标
-                //cols: ins1.config.cols
-              }, true);
-            break;
-            case 'reloadData':
-              // 数据重载 - 参数重置
-              table.reloadData('test', {
-                where: {
-                  abc: '123456',
-                  //test: '新的 test2',
-                  //token: '新的 token2'
-                },
-                scrollPos: 'fixed',  // 保持滚动条位置不变 - v2.7.3 新增
-                height: 2000, // 测试无效参数（即与数据无关的参数设置无效，此处以 height 设置无效为例）
-                //url: '404',
-                //page: {curr: 1, limit: 30} // 重新指向分页
-              });
-            break;
-            case 'reloadData-deep':
-              // 数据重载 - 参数叠加
-              table.reloadData('test', {
-                where: {
-                  abc: 123,
-                  test: '新的 test1'
+        // 自定义验证规则
+        form.verify({
+            user_code: function (value) {
+                if (value.length < 1) {
+                    return '用户代码不能为空';
                 }
-              }, true);
-            break;
-          }
-          layer.msg('可观察 Network 请求参数的变化');
-        }
-      });
+            },
+            email: function (value) {
+                if (value.length < 1) {
+                    return '邮箱不能为空';
+                }
+            }
+        });
 
-      // 行模式
-      dropdown.render({
-        elem: '#rowMode',
-        data: [{
-          id: 'default-row',
-          title: '单行模式（默认）'
-        },{
-          id: 'multi-row',
-          title: '多行模式'
-        }],
-        // 菜单被点击的事件
-        click: function(obj){
-          var checkStatus = table.checkStatus(id)
-          var data = checkStatus.data; // 获取选中的数据
-          switch(obj.id){
-            case 'default-row':
-              table.reload('test', {
-                lineStyle: null // 恢复单行
-              });
-              layer.msg('已设为单行');
-            break;
-            case 'multi-row':
-              table.reload('test', {
-                // 设置行样式，此处以设置多行高度为例。若为单行，则没必要设置改参数 - 注：v2.7.0 新增
-                lineStyle: 'height: 95px;'
-              });
-              layer.msg('即通过设置 lineStyle 参数可开启多行');
-            break;
-          }
-        }
-      });
-    },
-    error: function(res, msg){
-      console.log(res, msg)
-    }
-  });
+        var loadUserTable = function () {
+            $('#user-table').show(); // 显示表格区域
 
-  // 工具栏事件
-  table.on('toolbar(test)', function(obj){
-    var id = obj.config.id;
-    var checkStatus = table.checkStatus(id);
-    var othis = lay(this);
-    switch(obj.event){
-      case 'getCheckData':
-        var data = checkStatus.data;
-        layer.alert(layui.util.escape(JSON.stringify(data)));
-      break;
-      case 'getData':
-        var getData = table.getData(id);
-        console.log(getData);
-        layer.alert(layui.util.escape(JSON.stringify(getData)));
-      break;
-      case 'LAYTABLE_TIPS':
-        layer.alert('自定义工具栏图标按钮');
-      break;
-    };
-  });
-  // 表头自定义元素工具事件 --- 2.8.8+
-  table.on('colTool(test)', function(obj){
-    var event = obj.event;
-    console.log(obj);
-    if(event === 'email-tips'){
-      layer.alert(layui.util.escape(JSON.stringify(obj.col)), {
-        title: '当前列属性配置项'
-      });
-    }
-  });
-
-  // 触发单元格工具事件
-  table.on('tool(test)', function(obj){ // 双击 toolDouble
-    var data = obj.data; // 获得当前行数据
-    // console.log(obj)
-    if(obj.event === 'edit'){
-      layer.open({
-        title: '编辑 - id:'+ data.id,
-        type: 1,
-        area: ['80%','80%'],
-        content: '<div style="padding: 16px;">自定义表单元素</div>'
-      });
-    } else if(obj.event === 'more'){
-      // 更多 - 下拉菜单
-      dropdown.render({
-        elem: this, // 触发事件的 DOM 对象
-        show: true, // 外部事件触发即显示
-        data: [{
-          title: '查看',
-          id: 'detail'
-        },{
-          title: '删除',
-          id: 'del'
-        }],
-        click: function(menudata){
-          if(menudata.id === 'detail'){
-            layer.msg('查看操作，当前行 ID:'+ data.id);
-          } else if(menudata.id === 'del'){
-            layer.confirm('真的删除行 [id: '+ data.id +'] 么', function(index){
-              obj.del(); // 删除对应行（tr）的DOM结构
-              layer.close(index);
-              // 向服务端发送删除指令
+            // 初始化表格
+            table.render({
+                elem: '#userTable',
+                url: 'http://159.138.154.126:18980/share/get_user_all_info', // 数据接口
+                page: true, // 开启分页
+                cols: [[ // 表头
+                    {type: 'checkbox'}, // 添加复选框
+                    {field: 'id', title: 'ID', sort: true},
+                    {field: 'nickname', title: '昵称'},
+                    {field: 'is_plus', title: 'Plus用户', sort: true},
+                    {field: 'created_at', title: '创建时间', sort: true},
+                    {field: 'auto_car', title: '自动换车', sort: true},
+                    {field: 'remark', title: '备注'},
+                    {field: 'carid', title: '车辆ID'},
+                    {field: 'user_code', title: '用户代码'},
+                    {field: 'expiration_date', title: '过期时间', sort: true},
+                    {field: 'email', title: '邮箱'},
+                    {field: 'state', title: '状态', sort: true}
+                ]],
+                parseData: function (res) { // 解析返回的数据格式
+                    if (res.status == 200) {
+                        return {
+                            "code": 0, // 解析接口状态
+                            "msg": res.message, // 解析提示文本
+                            "count": res.data.length, // 解析数据长度
+                            "data": res.data // 解析数据列表
+                        };
+                    }
+                },
+                text: {
+                    none: '没有用户数据' // 空数据时的提示文字
+                }
             });
-          }
-        },
-        align: 'right', // 右对齐弹出
-        style: 'box-shadow: 1px 1px 10px rgb(0 0 0 / 12%);' // 设置额外样式
-      })
-    }
-  });
+        };
 
-  // 触发表格复选框选择
-  table.on('checkbox(test)', function(obj){
-    console.log(obj)
-  });
+        // 当点击用户管理时加载表格
+        $('#refresh').click(function () {
+            table.reload('userTable');
+        });
 
-  // 触发表格单选框选择
-  table.on('radio(test)', function(obj){
-    console.log(obj)
-  });
+        $(document).ready(function () {
+            // 页面加载时直接显示用户管理页面
+            loadUserTable();
+            // 触发用户管理链接的点击事件
+            $('#user-management').trigger('click');
+        });
 
-  // 行单击事件
-  table.on('row(test)', function(obj){
-    //console.log(obj);
-    //layer.closeAll('tips');
-  });
-  // 行双击事件
-  table.on('rowDouble(test)', function(obj){
-    console.log(obj);
-  });
+        // 新增用户按钮的点击事件处理函数
+        $('#add-user').click(function () {
+            // 弹出表单
+            layer.open({
+                type: 1,
+                title: '新增用户',
+                content: $('#add-user-form'), // 这里content是一个普通的String
+                area: ['400px', 'auto'],
+                btn: ['提交', '取消'],
+                yes: function (index, layero) {
+                    // 当点击‘提交’按钮的时候，获取form表单中的值
+                    var formData = form.val("add-user-form");
+                    $.ajax({
+                        url: 'http://159.138.154.126:18980/share/add_user_info',
+                        type: 'POST',
+                        data: JSON.stringify(formData), // 将数据转换为JSON字符串
+                        contentType: 'application/json', // 设置请求头的Content-Type为application/json
+                        success: function (data) {
+                            if (data.status === 200) {
+                                layer.msg('新增成功');
+                                table.reload('userTable');
+                            } else {
+                                layer.msg('新增失败');
+                            }
+                        }
+                    });
+                    layer.close(index); // 如果设定了yes回调，需进行手工关闭
+                }
+            });
+        });
 
-  // 单元格编辑事件
-  table.on('edit(test)', function(obj){
-    var field = obj.field; // 得到字段
-    var value = obj.value; // 得到修改后的值
-    var data = obj.data; // 得到所在行所有键值
-    // 值的校验
-    if(field === 'email'){
-      if(!/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test(obj.value)){
-        layer.tips('输入的邮箱格式不正确，请重新编辑', this, {tips: 1});
-        return obj.reedit(); // 重新编辑 -- v2.8.0 新增
-      }
-    }
-    // 编辑后续操作，如提交更新请求，以完成真实的数据更新
-    // …
-    layer.msg('编辑成功', {icon: 1});
+        // 编辑用户按钮的点击事件处理函数
+        $('#edit-user').click(function () {
+            var checkStatus = table.checkStatus('userTable'); // 获取表格的选中状态
+            var data = checkStatus.data; // 获取选中行的数据
 
-    // 其他更新操作
-    var update = {};
-    update[field] = value;
-    obj.update(update);
-  });
-});
+            if (data.length === 0) {
+                layer.msg('请先选择要编辑的行');
+                return;
+            }
+            if (data.length > 1) {
+                layer.msg('不能选择多行');
+                return;
+            }
+            // 弹出表单
+            layer.open({
+                type: 1,
+                title: '编辑用户',
+                content: $('#edit-user-form'), // 这里content是一个普通的String
+                area: ['400px', 'auto'],
+                btn: ['提交', '取消'],
+                yes: function (index, layero) {
+                    // 当点击‘提交’按钮的时候，获取form表单中的值
+                    var formData = form.val("edit-user-form");
+                    $.ajax({
+                        url: 'http://159.138.154.126:18980/share/update_user_info',
+                        type: 'POST',
+                        data: JSON.stringify(formData), // 将数据转换为JSON字符串
+                        contentType: 'application/json', // 设置请求头的Content-Type为application/json
+                        success: function (data) {
+                            if (data.status === 200) {
+                                layer.msg('编辑成功');
+                                table.reload('userTable');
+                            } else {
+                                layer.msg('编辑失败');
+                            }
+                        }
+                    });
+                    layer.close(index); // 如果设定了yes回调，需进行手工关闭
+                }, end: function () {
+                    // 启用用户代码输入框
+                    $('input[name="user_code"]').prop('disabled', false);
+                    form.render(); // 更新渲染
+                }
+            });
+            form.val("edit-user-form", data[0]);
+            // 将选中行的数据填充到表单中
+            form.val("edit-user-form", data[0]);
+        });
+
+        // 监听提交
+        form.on('submit(add-user-form)', function (data) {
+            // 在这里添加提交表单的代码
+            console.log(data.field);
+            return false;
+        });
+    });
 </script>
 </body>
 </html>
