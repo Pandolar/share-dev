@@ -6,7 +6,8 @@
 # @Time : 2024/1/19 14:01
 # -------------------------------
 from datetime import datetime, timedelta
-
+import random
+import string
 
 class Tools:
     """
@@ -65,10 +66,7 @@ class Tools:
         url = f'{http}://{host}/auth/logintoken?carid={carid}&usertoken={user_code}'
         return url
 
-    # async def get_share_html(self):
-    #     with open('html/list.html', 'r', encoding='utf-8') as html_file:
-    #         pagetxt = html_file.read()
-    #
-    #     # page = pagetxt.format(base_url=DEFAULT_REDIRECT_URL)
-    #     page = pagetxt
-    #     return HTMLResponse(page)
+    @staticmethod
+    def generation_token():
+        # 生成token  随机字符串32位  小写字母+数字
+        return ''.join(random.sample(string.ascii_letters + string.digits, 32))

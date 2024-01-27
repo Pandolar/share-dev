@@ -10,6 +10,8 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import  Optional
 
+# 数据模型
+
 class ShareUser(BaseModel):
     """
     用户数据模型
@@ -23,7 +25,8 @@ class ShareUser(BaseModel):
     auto_car: Optional[int] = None
     state: Optional[int] = None
     remark: Optional[str] = None
-
+    xy_id: Optional[str] = None
+    tag:Optional[str] = None
     class Config:
         orm_mode = True
         from_attributes = True
@@ -39,6 +42,12 @@ class ShareCar(BaseModel):
     state: Optional[int] = None
     plus_ex_time: Optional[datetime] = None
     remark: Optional[str] = None
+    xy_id: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    sess: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    tag:Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -60,8 +69,21 @@ class ShareConfig(BaseModel):
 
 
 
+class Order(BaseModel):
+    """
+    订单数据模型
+    """
+    platform: Optional[str] = None
+    order_id: Optional[str] = None
+    duration: Optional[int] = None
+    is_plus: Optional[int] = None
+    is_exclusive: Optional[int] = None
+    created_at: Optional[datetime] = None
+    email: Optional[str] = None
+    state: Optional[int] = None
+    remark: Optional[str] = None
+    tag:Optional[str] = None
 
-# class StandardResponse(BaseModel):
-#     status: int
-#     message: str
-#     data: Optional[Any] = None
+    class Config:
+        orm_mode = True
+        from_attributes = True

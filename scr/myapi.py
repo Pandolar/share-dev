@@ -8,110 +8,25 @@
 from contextlib import contextmanager
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from sqlalchemy import inspect
 from scr.log import Logger
 from sqlalchemy.ext.declarative import declarative_base
 from config import CONFIG
 from models import ShareUserDB, ShareCarDB, ShareConfigDB, ShareUser, ShareCar, ShareConfig
 from tools import Tools
+from scr.mydb import DataBase
+from scr.myredis import MyRedis
+from xy_share_api import Xyhelper
 
 Base = declarative_base()
 logger = Logger('share_dev').get_logger()
 app = FastAPI()
 
 
-class DataBase():
-    """
-    数据库操作类
-    """
-
-    def __init__(self):
-        """
-        初始化
-        :param config:
-        """
-        config = CONFIG
-        self.host = config['DB_HOST']
-        self.user = config['DB_USER']
-        self.password = config['DB_PASSWORD']
-        self.database = config['DB_NAME']
-        self.port = config['DB_PORT']
-        self.DEFAULT_REDIRECT_URL = config['DEFAULT_REDIRECT_URL']
-        # self.SHORT_URL_PREFIX = config['SHORT_URL_PREFIX']
-        self.RANDOM_SUFFIX_LENGTH = config['RANDOM_SUFFIX_LENGTH']
-        # self.DATABASE_URL = f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}"
-        self.DATABASE_URL = f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
-
-        # 创建 SQLAlchemy 引擎
-        try:
-            self.engine = create_engine(self.DATABASE_URL)
-
-            # 创建 Session 工厂
-            self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-            self.schema = self.database
-            logger.info(f'数据库连接成功')
-        except Exception as e:
-            logger.error(f'数据库连接失败 {e}')
-
-    def get_engine(self):
-        """
-        获取引擎
-        :return:
-        """
-        return self.engine
-
-    def is_table(self) -> bool:
-        """
-        检查 表是否存在
-        :return: bool
-        """
-        inspector = inspect(self.engine)
-        # 传递数据库模式名称
-        tables = inspector.get_table_names(schema=self.schema)
-        return ('share_user' in tables) and ('share_car' in tables) and ('share_config' in tables)
-
-    def create_table(self):
-        """
-        创建表。
-        :return:
-        """
-        if not self.is_table():
-            # Base.metadata.create_all(self.engine)
-            # 创建全部表
-            ShareUserDB.__table__.create(self.engine)
-            ShareCarDB.__table__.create(self.engine)
-            ShareConfigDB.__table__.create(self.engine)
-            logger.info(f'成功创建数据表')
-            # 写入初始数据
-            self.write_beginning_data()
-        else:
-            logger.info(f'数据表已存在，无需创建')
-
-    def write_beginning_data(self):
-        """
-        写入初始数据
-        :return:
-        """
-        with self.SessionLocal() as db:
-            try:
-                # 写入初始数据
-                db.add(ShareUserDB(user_code='zhangsan', nickname='张三', carid='a123456',
-                                   is_plus=1, expiration_date=datetime.now(), state=1, email='123@qq.com', remark='示例用户'))
-                db.add(ShareCarDB(carid='car123456', car_type=1, state=1, plus_ex_time=datetime.now()), remark='示例车辆')
-                db.add(ShareConfigDB(key='test', value='test01', remark='示例配置'))
-                db.commit()
-                logger.info(f'成功写入示例数据')
-            except Exception as e:
-                db.rollback()
-                logger.info(f'写入示例数据失败 {e}')
-
-
 class MyApi():
     def __init__(self):
-        database = DataBase()
+        database = DataBase(logger)
         database.create_table()
         self.engine = database.get_engine()
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
@@ -144,11 +59,14 @@ class MyApi():
             try:
                 db.add(item)
                 db.commit()
-                logger.info(f'添加用户{item.user_code}成功')
+                # 如果item为多个对象，需要遍历
+                if isinstance(item, list):
+                    for i in item:
+                        logger.info(f'添加用户{i.user_code}成功')
                 return 'ok'
             except Exception as e:
                 db.rollback()
-                logger.info(f'添加用户{item.user_code}失败')
+                logger.info(f'添加用户失败')
                 return f'error: {e}'
 
     def update_user_info(self, item: ShareUser):
@@ -170,24 +88,6 @@ class MyApi():
         else:
             return 'error: no user_code'
 
-    # def sealing_info(self, item: ShareUser):
-    #     # 封禁用户信息的逻辑
-    #     if item.user_code:
-    #         with self.get_db() as db:
-    #             try:
-    #                 db.query(ShareUserDB).filter(ShareUserDB.user_code == item.user_code).update({ShareUserDB.state: 1})
-    #                 db.commit()
-    #                 msg = f'封禁用户{item.user_code}成功'
-    #                 logger.info(msg)
-    #                 return msg
-    #             except Exception as e:
-    #                 db.rollback()
-    #                 msg = f'error: 封禁用户{item.user_code}失败 {e}'
-    #                 logger.info(msg)
-    #                 return msg
-    #     else:
-    #         return 'error: no user_code'
-
     def get_user_info(self, user_code):
         # 获取用户信息
         if user_code:
@@ -202,6 +102,25 @@ class MyApi():
                     return ret_
                 except Exception as e:
                     msg = f'error: 获取用户{user_code}信息失败 {e}'
+                    logger.info(msg)
+                    return msg
+        else:
+            return 'error: no user_code'
+
+    # 删除某用户信息
+    def delete_user_info(self, user_code):
+        # 删除某用户信息
+        if user_code:
+            with self.get_db() as db:
+                try:
+                    db.query(ShareUserDB).filter(ShareUserDB.user_code == user_code).delete()
+                    db.commit()
+                    msg = f'删除用户{user_code}信息成功'
+                    logger.info(msg)
+                    return msg
+                except Exception as e:
+                    db.rollback()
+                    msg = f'error: 删除用户{user_code}信息失败 {e}'
                     logger.info(msg)
                     return msg
         else:
@@ -225,7 +144,107 @@ class MyApi():
         else:
             return {'is_out_time': True, 'user_code': "no user_code"}
 
-    def jump_url(self, user_code, is_https=False, host=CONFIG['DEFAULT_REDIRECT_URL']):
+    def filter_delete(self, data: list):
+        # 过滤掉已经删除的用户
+        ret = []
+        for i in data:
+            if i["deleted_at"] is None:
+                ret.append(i)
+        return ret
+
+    def sync_xy_user(self):
+        # 首次同步xy用户
+        try:
+            # 先使用xy 的api拿到所有用户信息
+            xyhelper = Xyhelper()
+            xy_dict = xyhelper.user_page(1, 10000)
+            print(xy_dict['code'])
+            if xy_dict['code'] == 1000:
+                xy_user_list = xy_dict['data']['list']
+                # 将xy用户信息写入数据库
+                # 先清空share_user和share_car表
+                with self.get_db() as db:
+                    try:
+                        db.query(ShareUserDB).delete()
+                        db.query(ShareCarDB).delete()
+                        db.commit()
+                        logger.info(f'清空share_user和share_car表成功')
+                    except Exception as e:
+                        db.rollback()
+                        logger.info(f'清空share_user和share_car表失败 {e}')
+                # 写入share_user表
+                for xy_user in self.filter_delete(xy_user_list):
+                    # 转换成ShareUserDB模型
+                    # 先对齐字段
+                    #  xy的数据示例{'createTime': '2024-01-16 11:08:41', 'deleted_at': None, 'expireTime': '2024-01-20 00:00:00', 'id': 2, 'isPlus': 1, 'remark': 'vip user 1', 'updateTime': '2024-01-17 10:27:34', 'userToken': 'vip1'}
+                    xy_add_user = {}
+                    xy_add_user['user_code'] = xy_user['userToken']
+                    # xy_add_user['nickname'] = xy_user['remark']
+                    # xy_add_user['carid'] = xy_user['remark']
+                    xy_add_user['is_plus'] = xy_user['isPlus']
+                    xy_add_user['expiration_date'] = xy_user['expireTime']
+                    # xy_add_user['email'] = xy_user['remark']
+                    xy_add_user['auto_car'] = 0
+                    xy_add_user['state'] = 1
+                    xy_add_user['remark'] = xy_user['remark']
+                    xy_add_user['xy_id'] = xy_user['id']
+                    user = ShareUserDB(**xy_add_user)
+                    # 写入数据库
+                    self.add_info(user)
+                logger.info(f'写入share_user表成功')
+                return {'msg': 'ok'}
+
+            else:
+                return {'msg': xy_dict['message'], 'code': xy_dict['code']}
+        except Exception as e:
+            logger.info(f'获取xy用户信息失败 {e}')
+            return {'msg': f'获取xy用户信息失败 {e}'}
+
+    def sync_xy_car(self):
+        # 首次同步xy车辆
+        try:
+            # 先使用xy 的api拿到所有车辆信息
+            xyhelper = Xyhelper()
+            xy_dict = xyhelper.session_page(1, 10000)
+            if xy_dict['code'] == 1000:
+                xy_car_list = xy_dict['data']['list']
+                # 将xy车辆信息写入数据库
+                # 先清空share_car表
+                with self.get_db() as db:
+                    try:
+                        db.query(ShareCarDB).delete()
+                        db.commit()
+                        logger.info(f'清空share_car表成功')
+                    except Exception as e:
+                        db.rollback()
+                        logger.info(f'清空share_car表失败 {e}')
+                # 写入share_car表
+                for xy_car in self.filter_delete(xy_car_list):
+                    # 转换成ShareCarDB模型
+                    # 先对齐字段
+                    # xy的数据示例{"code": 1000, "message": "BaseResMessage", "data": {"list": [{"carID": "54jymsbn", "createTime": "2024-01-09 16:36:45", "deleted_at": null, "email": "heiwailetchthipa@mail.com", "id": 3, "isPlus": 1, "officialSession": "xxx", "accessToken":"xxx", "password": "Ud1NyknvyJm1", "remark": "正规号1", "status": 1, "updateTime": "2024-01-26 11:52:49"}], "pagination": {"page": 1, "size": 1, "total": 88}}}
+                    xy_add_car = {}
+                    xy_add_car['carid'] = xy_car['carID']
+                    xy_add_car['car_type'] = xy_car['isPlus']
+                    xy_add_car['max_user_num'] = CONFIG['MAX_USER_IN_CAR']
+                    xy_add_car['state'] = xy_car['status']
+                    xy_add_car['email'] = xy_car['email']
+                    xy_add_car['password'] = xy_car['password']
+                    xy_add_car['sess'] = xy_car['officialSession']
+                    xy_add_car['xy_id'] = xy_car['id']
+                    xy_add_car['remark'] = xy_car['remark']
+                    xy_add_car['updated_at'] = xy_car['updateTime']
+
+                    car = ShareCarDB(**xy_add_car)
+                    # 写入数据库
+                    self.add_info(car)
+                logger.info(f'写入share_car表成功')
+                return {'msg': 'ok'}
+        except Exception as e:
+            logger.info(f'获取xy car信息失败 {e}')
+            return {'msg': f'获取xy car信息失败 {e}'}
+
+    def jump_url(self, user_code, is_https=False, host=CONFIG['SHARE_HOST']):
         # 获取跳转url 重定向
         # 这里详细逻辑后面写
         ret_ = self.is_out_time(user_code)
@@ -237,10 +256,28 @@ class MyApi():
             carid = self.get_user_info(user_code).carid
             url = Tools().get_url(host, user_code, carid, is_https=is_https)
             return url
+
     def get_share_html(self):
-        with open('html/list.html', 'r', encoding='utf-8') as html_file:
+        with open('html/home.html', 'r', encoding='utf-8') as html_file:
             pagetxt = html_file.read()
 
-        # page = pagetxt.format(base_url=DEFAULT_REDIRECT_URL)
+        # page = pagetxt.format(base_url=SHARE_HOST)
         page = pagetxt
         return HTMLResponse(page)
+
+    def get_login_html(self):
+        with open('html/login.html', 'r', encoding='utf-8') as html_file:
+            pagetxt = html_file.read()
+        # page = pagetxt.format(base_url=SHARE_HOST)
+        page = pagetxt
+        return HTMLResponse(page)
+
+    def get_token(self, user, password):
+        if user == CONFIG['USER'] and password == CONFIG['PASSWORD']:
+            token = Tools().generation_token()
+            # 写入redis
+            redis = MyRedis()
+            redis.set_redis('share-2-token',token,24*60*60) # 24小时过期
+            return {'token': token, 'msg': 'ok', 'code': 200}
+        else:
+            return {'msg': 'error 用户名或密码错误', 'code': 500}

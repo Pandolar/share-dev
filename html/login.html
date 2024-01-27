@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Share银狐二开登录</title>
+<!--    <link rel="icon" href="https://zabbix-new.efun.com/favicon.ico" type="image/x-icon">-->
+    <link rel="stylesheet" href="https://www.layuicdn.com/layui/css/layui.css">
+    <style>
+        .login-form {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .title {
+            margin-top: 20px; /* 添加上边距 */
+            text-align: center; /* 居中对齐 */
+        }
+
+        @media (max-width: 600px) {
+            .login-form {
+                max-width: 100%;
+                padding: 10px;
+            }
+        }
+
+        .layui-container {
+            margin-top: 20px; /* 你可以根据需要调整这个值 */
+        }
+
+        .login-form {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12 layui-col-sm12 layui-col-xs12">
+
+            <div class="login-form">
+                <div class="title">  <!-- 添加的div标签 -->
+                    <h3>Share银狐二开登录</h3> <!-- 添加的标题 -->
+                    <br>
+                </div>
+
+                <form class="layui-form" action="" id="loginForm">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">Username</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="username" required lay-verify="required" placeholder="username"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">Password</label>
+                        <div class="layui-input-block">
+                            <input type="password" name="password" required lay-verify="required" placeholder="password"
+                                   autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="formDemo">Log in</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="layui-bg-gray" style="padding: 10px;">
+                    <div class="layui-row layui-col-space15">
+
+                        <div class="layui-card explanation">
+                            <div class="layui-card-header">说明</div>
+                            <div class="layui-card-body">
+                                银狐二开share<br>
+                                项目地址：foxaigc.com<br>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://cdn.staticfile.org/layui/2.9.4/layui.js"></script>
+<script>
+    $.ajaxSetup({
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + $.cookie('token'));
+            xhr.setRequestHeader('username', $.cookie('username'));
+        }
+    });
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            $.ajax({
+                url: '/get_token',  // replace with your login API
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: data.field.username,
+                    password: data.field.password
+                }),
+                success: function (response) {
+                    // save token to localStorage
+                    localStorage.setItem('token', response);
+                    // 把username也存起来
+                    // localStorage.setItem('username', data.field.username);
+                    // redirect to another page or update UI
+                    layer.msg('登录成功', {icon: 1});
+                    // Send a GET request to /home and insert the returned HTML content into the current page
+                    $.ajax({
+                        url: '/home',
+                        type: 'GET',
+                        success: function (data) {
+                            // 将返回的HTML内容插入到当前页面
+                            $('body').html(data);
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.log(error);
+                    layer.msg('登录失败，请检查您的用户名和密码', {icon: 2});
+                }
+            });
+            return false;
+        });
+
+        // add custom form validation
+        form.verify({
+            username: function (value, item) { //value：表单的值、item：表单的DOM对象
+                if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                    return '用户名不能有特殊字符';
+                }
+                if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                    return '用户名首尾不能出现下划线\'_\'';
+                }
+                if (/^\d+\d+\d$/.test(value)) {
+                    return '用户名不能全为数字';
+                }
+            },
+            password: [/(.+){4,12}$/, '密码必须4到12位']
+        });
+    });
+
+</script>

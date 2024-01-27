@@ -13,7 +13,7 @@
 
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
-        <div class="layui-logo layui-hide-xs layui-bg-black">管理界面布局</div>
+        <div class="layui-logo layui-hide-xs layui-bg-black">share-银狐二开管理</div>
         <!-- 头部区域（可配合layui已有的水平导航） -->
 
     </div>
@@ -31,7 +31,7 @@
                     </dl>
                 </li>
                 <li class="layui-nav-item">
-                    <a href="https://foxaigc.com">关于页面</a>
+                    <a href="https://go.foxaigc.com">关于页面</a>
                 </li>
             </ul>
         </div>
@@ -44,7 +44,6 @@
             <div id="user-table" style="display: none;">
                 <button id="add-user" class="layui-btn layui-btn-normal">新增</button>
                 <button id="edit-user" class="layui-btn layui-btn-normal">编辑</button>
-
                 <table id="userTable" lay-filter="userTable"></table>
             </div>
             <!-- 更多内容 -->
@@ -53,10 +52,11 @@
 
     <div class="layui-footer">
         <!-- 底部固定区域 -->
-        底部固定区域
+        © share 银狐二开 2024
     </div>
     <!-- 新增用户的表单 -->
     <div id="add-user-form" style="display: none;">
+
         <form class="layui-form" lay-filter="add-user-form">
             <div class="layui-form-item">
                 <label class="layui-form-label">用户代码</label>
@@ -97,7 +97,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">自动换车</label>
                 <div class="layui-input-inline">
-                    <input type="checkbox" name="auto_car"  lay-skin="switch" lay-text="1|0" value="1">
+                    <input type="checkbox" name="auto_car" lay-skin="switch" lay-text="1|0" value="1">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -115,26 +115,27 @@
         </form>
     </div>
     <!-- 编辑用户的表单 -->
-<!-- 编辑用户的表单 -->
-<div id="edit-user-form" style="display: none;">
-    <form class="layui-form" lay-filter="edit-user-form">
-        <div class="layui-form-item">
-            <label class="layui-form-label">用户代码</label>
-            <div class="layui-input-inline">
-                <input type="text" name="user_code" required lay-verify="required" placeholder="请输入用户代码" autocomplete="off" class="layui-input" disabled>
+    <!-- 编辑用户的表单 -->
+    <div id="edit-user-form" style="display: none;">
+        <form class="layui-form" lay-filter="edit-user-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户代码</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="user_code" required lay-verify="required" placeholder="请输入用户代码" autocomplete="off" class="layui-input"
+                           disabled>
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">昵称</label>
-            <div class="layui-input-inline">
-                <input type="text" name="nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+            <div class="layui-form-item">
+                <label class="layui-form-label">昵称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">车辆ID</label>
-            <div class="layui-input-inline">
-                <input type="text" name="carid" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
-            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">车辆ID</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="carid" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
+                </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">Plus用户</label>
@@ -157,7 +158,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">自动换车</label>
                 <div class="layui-input-inline">
-                    <input type="checkbox" name="auto_car"  lay-skin="switch" lay-text="1|0" value="1">
+                    <input type="checkbox" name="auto_car" lay-skin="switch" lay-text="1|0" value="1">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -228,7 +229,7 @@
                     {field: 'state', title: '状态', sort: true}
                 ]],
                 parseData: function (res) { // 解析返回的数据格式
-                    if (res.status == 200) {
+                    if (res.status === 200) {
                         return {
                             "code": 0, // 解析接口状态
                             "msg": res.message, // 解析提示文本
