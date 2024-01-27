@@ -11,14 +11,14 @@ from models import ShareUserDB, ShareCarDB, ShareConfigDB, ShareUser, ShareCar, 
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from config import CONFIG
-
+from src.log import logger
 
 class DataBase():
     """
     数据库操作类
     """
 
-    def __init__(self, logger):
+    def __init__(self):
         """
         初始化
         :param config:
@@ -89,12 +89,25 @@ class DataBase():
         with self.SessionLocal() as db:
             try:
                 # 写入初始数据
-                db.add(ShareUserDB(user_code='zhangsan', nickname='张三', carid='a123456',
-                                   is_plus=1, expiration_date=datetime.now(), state=1, email='123@qq.com', remark='示例用户'))
-                db.add(ShareCarDB(carid='car123456', car_type=1, state=1, plus_ex_time=datetime.now()), remark='示例车辆')
-                db.add(ShareConfigDB(key='test', value='test01', remark='示例配置'))
+                db.add(ShareUserDB(user_code='zhangsan', carid='a123456',is_plus=1, expiration_date=datetime.now(), state=1, email='123@qq.com', remark='示例用户'))
+                db.add(ShareCarDB(carid='car123456', car_type=1, state=1, plus_ex_time=datetime.now()))
+                # db.add(ShareConfigDB(key='test', value='test01'))
                 db.commit()
                 self.logger.info(f'成功写入示例数据')
             except Exception as e:
                 db.rollback()
                 self.logger.info(f'写入示例数据失败 {e}')
+    def get_all_carid(self,status=1):
+        """
+        获取所有车号  默认为正常状态
+        :return:
+        """
+        with self.SessionLocal() as db:
+            try:
+                # 写入初始数据
+                ret=db.query(ShareCarDB.carid).filter(ShareCarDB.state==status).all()
+                return ret
+            except Exception as e:
+                db.rollback()
+                self.logger.info(f'获取所有车号失败 {e}')
+                return False

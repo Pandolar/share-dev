@@ -9,16 +9,20 @@
 
 import redis
 from config import CONFIG
-
+from src.log import logger
 
 class MyRedis():
     def __init__(self):
         self.host = CONFIG['REDIS_HOST']
         self.port = CONFIG['REDIS_PORT']
         self.password = CONFIG['REDIS_PASSWORD']
-        self.db = 0
-        self.pool = redis.ConnectionPool(host=self.host, port=self.port, password=self.password, db=self.db)
-        self.r = redis.Redis(connection_pool=self.pool)
+        try:
+            self.r = redis.Redis(host=self.host, port=self.port, password=self.password)
+            self.r.ping()
+            logger.info(f'连接redis成功')
+        except Exception as e:
+            logger.error(f'连接redis失败 {e}')
+
 
     def set_redis(self, key, value, ex=60 * 5):
         """
@@ -29,6 +33,7 @@ class MyRedis():
         :return:
         """
         self.r.set(key, value, ex)
+        logger.info(f'设置redis成功 {key} {value}')
 
     def update_redis(self, key, value, ex=60 * 5):
         """
@@ -46,3 +51,16 @@ class MyRedis():
         :return:
         """
         self.r.delete(key)
+    def get_redis(self, key):
+        """
+        获取值
+        :param key:
+        :return:
+        """
+        ret_=self.r.get(key)
+        if ret_:
+            return ret_.decode('utf-8')
+        else:
+            return None
+
+share_redis = MyRedis()

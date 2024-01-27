@@ -6,8 +6,11 @@
 # @Time : 2024/1/19 14:01
 # -------------------------------
 from datetime import datetime, timedelta
+from src.myredis import share_redis
 import random
 import string
+
+
 
 class Tools:
     """
@@ -68,5 +71,23 @@ class Tools:
 
     @staticmethod
     def generation_token():
+        """
+        生成token
+        :return:
+        """
         # 生成token  随机字符串32位  小写字母+数字
         return ''.join(random.sample(string.ascii_letters + string.digits, 32))
+
+    @staticmethod
+    def verify_token(token: str):
+        """
+        验证token
+        :param token:
+        :return:
+        """
+        if token is None or token == '':
+            return False
+        elif share_redis.get_redis('share-2-token') == token:
+            return True
+        else:
+            return False

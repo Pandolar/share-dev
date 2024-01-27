@@ -19,7 +19,7 @@ class Xyhelper:
             "apiauth": CONFIG['SHARE_KEY'],
             "Content-Type": "application/json"
         }
-
+    # ------------------用户相关------------------
     def add_user(self, userToken, expireTime, isPlus):
         url = self.BASE_URL + "user/add"
         data = {
@@ -118,7 +118,7 @@ class Xyhelper:
             print("Request failed.")
             print("Status Code:", response.status_code)
             print("Response:", response.text)
-
+    # ------------------session车辆相关------------------
     def session_page(self, page=1, size=10000):
         url = self.BASE_URL + "session/page"
         data = {
@@ -194,15 +194,20 @@ class Xyhelper:
             print("Response:", response.text)
 
 
-# add_user("useradmin2", "2024-01-18 00:00:00", 1)
-# delete_user([7,8,9])
-# user_info(2)
-# user_list(9)
-# user_page(1,2)
-# user_update(createTime=None, expireTime="2024-01-20 00:00:00", id=2, isPlus=1, remark="vip user 1", updateTime=None, userToken="vip1")
-# session部分和user都差不多的，自己写吧，我没有调api加session的需求
-
+    # ------------------其他API------------------
+    def get_endpoint(self,carid:str):
+        url = f"https://{CONFIG['SHARE_HOST']}/endpoint?carid="+carid
+        # url = self.BASE_URL + "getEndpoint"
+        response = requests.get(url, headers=self.HEADERS)
+        # Response: {'code': 1000, 'message': 'BaseResMessage', 'data': 'https://api.openai.com'}
+        if response.status_code == 200:
+            # print("Request successful.")
+            # print("Response:", response.json())
+            return response.json()
+        else:
+            return None
 
 if __name__ == '__main__':
     xyhelper = Xyhelper()
-    print(xyhelper.session_page(1, 1))
+    # print(xyhelper.session_page(1, 1))
+    print(xyhelper.get_endpoint('8yujuj5q1'))

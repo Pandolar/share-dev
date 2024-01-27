@@ -22,7 +22,7 @@ class ShareUserDB(Base):
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     xy_id = Column(String(255, collation="utf8mb4_general_ci"), unique=True, comment='xy_id')
     user_code = Column(String(60, collation="utf8mb4_general_ci"), unique=True, nullable=False, comment='用户授权码')
-    nickname = Column(String(255, collation="utf8mb4_general_ci"), comment='昵称')
+    # nickname = Column(String(255, collation="utf8mb4_general_ci"), comment='昵称')
     carid = Column(String(255, collation="utf8mb4_general_ci"), comment='车号')
     is_plus = Column(Integer, comment='是否为plus')
     expiration_date = Column(DateTime, comment='到期时间')
@@ -53,6 +53,7 @@ class ShareCarDB(Base):
     sess = Column(TEXT(), comment='sess')
     # xy_id
     xy_id = Column(String(255, collation="utf8mb4_general_ci"), comment='xy_id')
+    real_time_state = Column(String(255, collation="utf8mb4_general_ci"), comment='实时状态')
     state = Column(Integer, comment='状态0被封 1正常')
     plus_ex_time = Column(DateTime, comment='plus到期时间', default=Tools.add_day)
     remark = Column(String(1024, collation="utf8mb4_general_ci"), comment='备注')

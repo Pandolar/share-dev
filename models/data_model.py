@@ -17,7 +17,7 @@ class ShareUser(BaseModel):
     用户数据模型
     """
     user_code: str
-    nickname: Optional[str] = None
+    # nickname: Optional[str] = None
     carid: Optional[str] = None
     is_plus: Optional[int] = None
     expiration_date: Optional[datetime] = None
@@ -47,6 +47,7 @@ class ShareCar(BaseModel):
     password: Optional[str] = None
     sess: Optional[str] = None
     updated_at: Optional[datetime] = None
+    real_time_state: Optional[str] = None
     tag:Optional[str] = None
 
     class Config:

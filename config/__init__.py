@@ -21,9 +21,9 @@ CONFIG = {
     "REDIS_PASSWORD": "",
     # share的配置
     "SHARE_HOST": "go.foxaigc.com",  # share主地址 必须开HTTPS
-    "SHARE_KEY": "fba2mjbfi2asf3d",  # share的api key
+    "SHARE_KEY": "nv1sj41t35kv84",  # share的api key
     "MAX_USER_IN_CAR": 5,  # 车内最大人数
-
+    "REAL_TIME_REFRESH_DURATION": 60*5,  # 实时刷新间隔  秒
     # 独角数据库的配置
     "DUJIAO_DB_HOST": "127.0.0.1",
     "DUJIAO_DB_USER": "dujiao",

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Share银狐二开登录</title>
-<!--    <link rel="icon" href="https://zabbix-new.efun.com/favicon.ico" type="image/x-icon">-->
+    <!--    <link rel="icon" href="https://zabbix-new.efun.com/favicon.ico" type="image/x-icon">-->
     <link rel="stylesheet" href="https://www.layuicdn.com/layui/css/layui.css">
     <style>
         .login-form {
@@ -48,7 +48,7 @@
 
             <div class="login-form">
                 <div class="title">  <!-- 添加的div标签 -->
-                    <h3>Share银狐二开登录</h3> <!-- 添加的标题 -->
+                    <h3>Share银狐二开-登录页面</h3> <!-- 添加的标题 -->
                     <br>
                 </div>
 
@@ -79,8 +79,9 @@
                         <div class="layui-card explanation">
                             <div class="layui-card-header">说明</div>
                             <div class="layui-card-body">
-                                银狐二开share<br>
+                                银狐二开share管理<br>
                                 项目地址：foxaigc.com<br>
+
                             </div>
                         </div>
 
@@ -115,10 +116,8 @@
                     password: data.field.password
                 }),
                 success: function (response) {
-                    // save token to localStorage
-                    localStorage.setItem('token', response);
-                    // 把username也存起来
-                    // localStorage.setItem('username', data.field.username);
+                    // save token to cookie
+                    $.cookie('token', response.data);
                     // redirect to another page or update UI
                     layer.msg('登录成功', {icon: 1});
                     // Send a GET request to /home and insert the returned HTML content into the current page
@@ -126,8 +125,8 @@
                         url: '/home',
                         type: 'GET',
                         success: function (data) {
-                            // 将返回的HTML内容插入到当前页面
-                            $('body').html(data);
+                            // 直接跳转到 /home
+                            window.location.href = '/home';
                         }
                     });
                 },
@@ -138,7 +137,6 @@
             });
             return false;
         });
-
         // add custom form validation
         form.verify({
             username: function (value, item) { //value：表单的值、item：表单的DOM对象
