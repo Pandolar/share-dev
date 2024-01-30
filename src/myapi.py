@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import text
+from sqlalchemy import text, and_, or_
 from datetime import datetime
 from src.log import logger
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,11 +19,13 @@ from tools import Tools
 from src.mydb import DataBase
 from src.myredis import share_redis
 from xy_share_api import Xyhelper
+import random
 
 Base = declarative_base()
 
 app = FastAPI()
 xyhelper = Xyhelper()
+
 
 class MyApi():
     def __init__(self):
@@ -378,7 +380,7 @@ class MyApi():
             return {'msg': 'error 用户名或密码错误'}
 
     # ---------------其他接口---------------
-    def jump_url(self, user_code, is_https=False, host=CONFIG['SHARE_HOST']):
+    def jump_url(self, user_code, is_https=False, host=CONFIG['SHARE_HOST'], is_auto_car=False):
         # 获取跳转url 重定向
         # 这里详细逻辑后面写
         ret_ = self.is_out_time(user_code)
@@ -387,6 +389,55 @@ class MyApi():
         else:
             # 未过期
             # 获取carid 从MySQL的share_user表查询
-            carid = self.get_user_info(user_code).carid
-            url = Tools().get_url(host, user_code, carid, is_https=is_https)
-            return url
+            if is_auto_car:
+                # 先从数据库查出是否为plus
+                with self.get_db() as db:  # 使用 with 语句来管理数据库会话
+                    # result = db.query(ShareUserDB.is_plus).filter(ShareCarDB.user_code == user_code).first()
+                    # 定义查询参数
+                    user_code = '183405009r5'
+                    car_state = 1
+                    real_time_state_keywords = ['推荐', '可用']
+
+                    # 构造参数化查询
+                    query = db.query(
+                        ShareCarDB.carid,
+                        ShareCarDB.real_time_state
+                    ).join(
+                        ShareUserDB, ShareUserDB.is_plus == ShareCarDB.car_type
+                    ).filter(
+                        ShareUserDB.user_code == user_code,
+                        ShareCarDB.state == car_state,
+                        or_(
+                            *[ShareCarDB.real_time_state.like(f'%{keyword}%') for keyword in real_time_state_keywords]
+                        )
+                    )
+                    results = query.all()
+
+                    # 假设 results 是之前查询得到的结果
+                    # results = [(123, '可用'), (456, '推荐'), ...]
+
+                    # 首先筛选出包含 "推荐" 的记录
+                    recommended = [carid for carid, state in results if '推荐' in state]
+
+                    # 如果存在包含 "推荐" 的记录，从中随机选择一个
+                    if recommended:
+                        chosen_carid = random.choice(recommended)
+                    else:
+                        # 否则，从所有记录中选择一个包含 "可用" 的
+                        available = [carid for carid, state in results if '可用' in state]
+                        if available:
+                            chosen_carid = random.choice(available)
+                        else:
+                            chosen_carid = None  # 如果没有符合条件的记录，返回 None
+
+                    # chosen_carid 是最终选择的 carid
+                    if chosen_carid:
+                        return None
+                    else:
+                        # return chosen_carid
+                        url = Tools().get_url(host, user_code, chosen_carid, is_https=is_https)
+                        return url
+            else:
+                carid = self.get_user_info(user_code).carid
+                url = Tools().get_url(host, user_code, carid, is_https=is_https)
+                return url

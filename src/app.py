@@ -171,7 +171,7 @@ async def delete_car_info(car_id: str, token: str = Cookie(None)):
 # --------------其他接口---------------
 # 重定向跳转链接
 @app.get("/jump")
-async def jump(user_code, response: Response):
+async def jump(user_code:str, response: Response):
     url = my_api.jump_url(user_code)
     response.status_code = 307  # 临时重定向
     response.headers["Location"] = url
