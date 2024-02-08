@@ -57,6 +57,7 @@ class ShareCarDB(Base):
     state = Column(Integer, comment='状态0被封 1正常')
     plus_ex_time = Column(DateTime, comment='plus到期时间', default=Tools.add_day)
     remark = Column(String(1024, collation="utf8mb4_general_ci"), comment='备注')
+    tag = Column(String(255, collation="utf8mb4_general_ci"), comment='标签')
 
 
 class ShareConfigDB(Base):

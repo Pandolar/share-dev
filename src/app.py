@@ -5,11 +5,11 @@
 # @File : app.py
 # @Time : 2024/1/18 17:04
 # -------------------------------
-from fastapi import FastAPI, Response, Cookie, Request
+from fastapi import FastAPI, Response, Cookie, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 from src.myapi import MyApi
-from models import ShareUser, ShareCar, ShareConfig, ShareUserDB
+from models import ShareUser, ShareCar, ShareConfig, ShareUserDB, ShareCarDB
 from tools import Tools
 
 # 初始化fastapi
@@ -86,7 +86,7 @@ async def add_info(item: ShareUser, token: str = Cookie(None)):
     if Tools().verify_token(token) is False:
         return RedirectResponse(url='/home')
     db_item = ShareUserDB(**item.dict())
-    data = my_api.add_user_info(db_item)
+    data = my_api.add_user_info(db_item, to_xy=True)
     return Tools().ret_data(data)
 
 
@@ -103,7 +103,7 @@ async def update_info(item: ShareUser, token: str = Cookie(None)):
 
 # 删除某用户信息
 @app.post("/share/delete_user_info")
-async def delete_info(user_code: str, token: str = Cookie(None)):
+async def delete_info(user_code: list = Body(...), token: str = Cookie(None)):
     if Tools().verify_token(token) is False:
         return RedirectResponse(url='/home')
     data = my_api.delete_user_info(user_code)
@@ -145,8 +145,8 @@ async def get_car_info(car_id: str, token: str = Cookie(None)):
 async def add_car_info(item: ShareCar, token: str = Cookie(None)):
     if Tools().verify_token(token) is False:
         return RedirectResponse(url='/home')
-    db_item = ShareUserDB(**item.dict())
-    data = my_api.add_car_info(db_item)
+    db_item = ShareCarDB(**item.dict())
+    data = my_api.add_car_info(db_item, to_xy=True)
     return Tools().ret_data(data)
 
 
@@ -171,8 +171,8 @@ async def delete_car_info(car_id: str, token: str = Cookie(None)):
 # --------------其他接口---------------
 # 重定向跳转链接
 @app.get("/jump")
-async def jump(user_code:str, response: Response):
-    url = my_api.jump_url(user_code)
+async def jump(user_code: str, response: Response):
+    url = my_api.jump_url(user_code, is_auto_car=True)
     response.status_code = 307  # 临时重定向
     response.headers["Location"] = url
     return response

@@ -1,1 +1,1 @@
-[2024-01-18 19:00:35,795][myapi.py:86][INFO] - 创建数据库连接失败 No module named 'pymysql'
+[2024-01-18 19:00:35,795][myapi.py:86][INFO] - 日志示例

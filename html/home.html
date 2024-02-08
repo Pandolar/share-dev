@@ -7,21 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.staticfile.org/layui/2.9.4/css/layui.css" rel="stylesheet">
-    <style>
-        .layui-body {
-            margin-bottom: 100px; /* 根据你的需求调整这个值 */
-        }
+    <!--    <style>-->
+    <!--        /*body {*/-->
+    <!--        /*    overflow: hidden;*/-->
+    <!--        /*}*/-->
 
+    <!--        .layui-body {-->
+    <!--            margin-bottom: 100px; /* 根据你的需求调整这个值 */-->
+    <!--            overflow: auto; /* 保持滚动条 */-->
+    <!--        }-->
 
-        body {
-            overflow: hidden;
-        }
-
-        #user-table, #car-table {
-            margin-bottom: 10px; /* 根据你的需求调整这个值 */
-        }
-
-    </style>
+    <!--        #user-table, #car-table {-->
+    <!--            max-height: 80vh; /* 根据视口高度自动调整 */-->
+    <!--            /* 移除 overflow: auto; */-->
+    <!--        }-->
+    <!--    </style>-->
 </head>
 
 <body>
@@ -106,6 +106,12 @@
                     <input type="text" name="carid" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
                 </div>
             </div>
+            <div class="layui-form-item" style="display:none;">
+                <label class="layui-form-label">xy_id</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="xy_id" placeholder="xy_id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">Plus用户</label>
                 <div class="layui-input-inline">
@@ -136,6 +142,7 @@
                     <input type="checkbox" name="state" lay-skin="switch" lay-text="1|0" value="1">
                 </div>
             </div>
+
             <div class="layui-form-item layui-form-text">
                 <label class="layui-form-label">备注</label>
                 <div class="layui-input-inline">
@@ -155,12 +162,12 @@
                            disabled>
                 </div>
             </div>
-            <!--            <div class="layui-form-item">-->
-            <!--                <label class="layui-form-label">昵称</label>-->
-            <!--                <div class="layui-input-inline">-->
-            <!--                    <input type="text" name="nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">-->
-            <!--                </div>-->
-            <!--            </div>-->
+            <div class="layui-form-item" style="display:none;">
+                <label class="layui-form-label">xy_id</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="xy_id" placeholder="xy_id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">车辆ID</label>
                 <div class="layui-input-inline">
@@ -213,6 +220,12 @@
                 <label class="layui-form-label">车辆ID</label>
                 <div class="layui-input-inline">
                     <input type="text" name="carid" required lay-verify="required" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" style="display:none;">
+                <label class="layui-form-label">xy_id</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="xy_id" placeholder="xy_id" autocomplete="off" class="layui-input">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -297,7 +310,12 @@
                     <input type="text" name="carid" required lay-verify="required" placeholder="请输入车辆ID" autocomplete="off" class="layui-input">
                 </div>
             </div>
-            <!-- 在这里添加其他字段 -->
+            <div class="layui-form-item" style="display:none;">
+                <label class="layui-form-label">xy_id</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="xy_id" placeholder="xy_id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">邮箱</label>
                 <div class="layui-input-inline">
@@ -431,11 +449,11 @@
                 elem: '#userTable',
                 url: '/share/get_user_all_info', // 数据接口
                 toolbar: '#usertoolbarDemo',
-                height: 'full-35',
+                // height: 'full-35',
                 // page: true, // 开启分页
                 cols: [[ // 表头
                     {type: 'checkbox'}, // 添加复选框
-                    // {field: 'id', title: 'ID', sort: true},
+                    //
                     {field: 'user_code', title: '用户授权码'},
                     {
                         field: 'is_plus',
@@ -469,7 +487,7 @@
                             }
                         }
                     },
-                    // {field: 'nickname', title: '昵称'},
+                    {field: 'xy_id', title: 'xy_id', sort: true},
                     {field: 'remark', title: '备注'},
                 ]],
                 parseData: function (res) { // 解析返回的数据格式
@@ -537,7 +555,10 @@
                                 layer.msg('新增成功');
                                 table.reload('userTable');
                             } else {
-                                layer.msg('新增失败');
+                                layer.confirm('新增失败，原因：' + data.message, function (index) {
+                                    layer.close(index);
+                                });
+                                table.reload('userTable');
                             }
                         }
                     });
@@ -578,7 +599,10 @@
                                 layer.msg('编辑成功');
                                 table.reload('userTable');
                             } else {
-                                layer.msg('编辑失败');
+                                layer.confirm('失败，原因：' + data.message, function (index) {
+                                    layer.close(index);
+                                });
+                                table.reload('userTable');
                             }
                         }
                     });
@@ -602,6 +626,11 @@
                 layer.msg('请先选择要删除的行');
                 return;
             }
+
+            var user_codes = data.map(function (row) {
+                return row.user_code; // 从每行数据中获取user_code
+            });
+
             layer.confirm('确定删除选中的行？', function (index) {
                 // 关闭弹窗
                 layer.close(index);
@@ -609,14 +638,17 @@
                 $.ajax({
                     url: '/share/delete_user_info',
                     type: 'POST',
-                    data: JSON.stringify(data), // 将数据转换为JSON字符串
+                    data: JSON.stringify(user_codes), // 将user_codes列表转换为JSON字符串
                     contentType: 'application/json', // 设置请求头的Content-Type为application/json
                     success: function (data) {
                         if (data.status === 200) {
                             layer.msg('删除成功');
                             table.reload('userTable');
                         } else {
-                            layer.msg('删除失败');
+                            layer.confirm('失败，原因：' + data.message, function (index) {
+                                layer.close(index);
+                            });
+                            table.reload('userTable');
                         }
                     }
                 });
@@ -664,7 +696,7 @@
                 elem: '#carTable',
                 url: '/share/get_car_all_info', // 数据接口
                 toolbar: '#cartoolbarDemo',
-                height: 'full-35',
+                // height: 'full-35',
 
                 cols: [[ // 表头
                     {type: 'checkbox'}, // 添加复选框
@@ -703,7 +735,7 @@
                     {field: 'created_at', title: '创建时间', sort: true},
                     {field: 'updated_at', title: '更新时间', sort: true},
                     {field: 'plus_ex_time', title: 'Plus过期时间', sort: true},
-                    // {field: 'xy_id', title: 'XY ID'},
+                    {field: 'xy_id', title: 'XY ID'},
                     {field: 'sess', title: 'Sess'},
                     {field: 'remark', title: '备注'},
                 ]],
@@ -749,7 +781,10 @@
                                 layer.msg('新增成功');
                                 table.reload('carTable');
                             } else {
-                                layer.msg('新增失败');
+                                layer.confirm('新增失败，原因：' + data.message, function (index) {
+                                    layer.close(index);
+                                });
+                                table.reload('carTable');
                             }
                         }
                     });
@@ -790,7 +825,10 @@
                                 layer.msg('编辑成功');
                                 table.reload('carTable');
                             } else {
-                                layer.msg('编辑失败');
+                                layer.confirm('失败，原因：' + data.message, function (index) {
+                                    layer.close(index);
+                                });
+                                table.reload('carTable');
                             }
                         }
                     });
@@ -809,6 +847,9 @@
                 layer.msg('请先选择要删除的行');
                 return;
             }
+            var carid = data.map(function (row) {
+                return row.carid; // 从每行数据中获取carid
+            });
             layer.confirm('确定删除选中的行？', function (index) {
                 // 关闭弹窗
                 layer.close(index);
@@ -816,14 +857,19 @@
                 $.ajax({
                     url: '/share/delete_car_info',
                     type: 'POST',
-                    data: JSON.stringify(data), // 将数据转换为JSON字符串
+                    data: JSON.stringify(carid), // 将数据转换为JSON字符串
                     contentType: 'application/json', // 设置请求头的Content-Type为application/json
                     success: function (data) {
                         if (data.status === 200) {
                             layer.msg('删除成功');
                             table.reload('carTable');
                         } else {
-                            layer.msg('删除失败');
+                            layer.confirm('失败，原因：' + data.message, function (index) {
+                                layer.close(index);
+                            });
+                            // 跳到/login
+                            window.location.href = '/login';
+                            // table.reload('carTable');
                         }
                     }
                 });

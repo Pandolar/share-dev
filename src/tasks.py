@@ -34,7 +34,12 @@ class Tasks():
             for i in all_carid:
                 xy = Xyhelper()
                 # 获取实时状态
-                real_time_state = xy.get_endpoint(i[0])
+                xy_ret=xy.get_endpoint(i[0])
+                if xy_ret['code'] is False:
+                    msg=xy_ret['msg']
+                    logger.info(msg)
+                    continue
+                real_time_state = xy_ret['data']
                 if real_time_state:
                     if i[0] == 'car123456':
                         logger.info('只有示例数据 不进行刷新实时状态')
