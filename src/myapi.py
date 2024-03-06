@@ -74,8 +74,9 @@ class MyApi():
                 return {'msg': f'error xy源数据库添加失败{xy_ret["msg"]}'}
         with self.get_db() as db:
             try:
-                xy_id = xy_ret['data']['data']['id']
-                item.xy_id = xy_id
+                if to_xy:
+                    xy_id = xy_ret['data']['data']['id']
+                    item.xy_id = xy_id
                 db.add(item)
                 db.commit()
                 # 如果item为多个对象，需要遍历
@@ -226,13 +227,14 @@ class MyApi():
                 msg = f'error xy源数据库添加失败{xy_ret["msg"]}'
                 logger.info(msg)
                 xy_status = False
-        all_info = self.get_all_car_info()
-        for i in all_info:
-            if i['carid'] == item.carid:
-                xy_id = i['id']
+            all_info = self.get_all_car_info()
+            for i in all_info:
+                if i['carid'] == item.carid:
+                    xy_id = i['id']
         with self.get_db() as db:
             try:
-                item.xy_id = xy_id
+                if to_xy:
+                    item.xy_id = xy_id
                 db.add(item)
                 db.commit()
                 # 如果item为多个对象，需要遍历
