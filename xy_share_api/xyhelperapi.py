@@ -35,7 +35,7 @@ class Xyhelper:
 
         if response.status_code == 200 and response.json()['code'] == 1000:
             logger.info(f"{userToken} 用户添加成功")
-            return {"code": True,"data":response.json()}
+            return {"code": True, "data": response.json()}
         else:
             logger.error(f"{userToken} 用户添加失败：{response.text}")
             return {"code": False, "msg": response.text}
@@ -146,7 +146,7 @@ class Xyhelper:
             logger.error(f"{id} session信息获取失败：{response.text}")
             return {"code": False, "msg": response.text}
 
-    def session_delete(self, id:list):
+    def session_delete(self, id: list):
         url = self.BASE_URL + "session/delete"
         data = {
             "id": id
@@ -208,11 +208,24 @@ class Xyhelper:
         url = f"https://{CONFIG['SHARE_HOST']}/endpoint?carid=" + carid
         # url = self.BASE_URL + "getEndpoint"
         response = requests.get(url, headers=self.HEADERS)
-        # Response: {'code': 1000, 'message': 'BaseResMessage', 'data': 'https://api.openai.com'}
+        # Response: {"color":"green","label":"3.5","labelColor":"blue","message":"空闲|推荐","namedLogo":"Cockroach Labs","schemaVersion":1}
+        # {"color":"grey","label":"","labelColor":"grey","message":"翻车|不可用","namedLogo":"Cockroach Labs","schemaVersion":1}
+        # {"color": "green", "label": "PLUS", "labelColor": "purple", "message": "空闲|推荐", "namedLogo": "Cockroach Labs", "schemaVersion": 1}
         if response.status_code == 200:
             return {"code": True, "data": response.json()}
         else:
             logger.error(f"{carid} 获取endpoint失败：{response.text}")
+            return {"code": False, "msg": response.text}
+
+    def get_status(self, carid: str):
+        # https://go.foxaigc.com/status?carid=tflsbf3o
+        url = f"https://{CONFIG['SHARE_HOST']}/status?carid=" + carid
+        response = requests.get(url, headers=self.HEADERS)
+        # {"accountReady":true,"clears_in":0,"count":3,"isPlus":true,"team_clears_in":0}
+        if response.status_code == 200:
+            return {"code": True, "data": response.json()}
+        else:
+            logger.error(f"{carid} 获取status失败：{response.text}")
             return {"code": False, "msg": response.text}
 
 

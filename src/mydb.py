@@ -73,7 +73,8 @@ class DataBase():
             # 创建全部表
             ShareUserDB.__table__.create(self.engine)
             ShareCarDB.__table__.create(self.engine)
-            # ShareConfigDB.__table__.create(self.engine)
+            OrderDB.__table__.create(self.engine)
+            ShareConfigDB.__table__.create(self.engine)
             OrderDB.__table__.create(self.engine)
             self.logger.info(f'成功创建数据表')
             # 写入初始数据
@@ -91,7 +92,7 @@ class DataBase():
                 # 写入初始数据
                 db.add(ShareUserDB(user_code='zhangsan', carid='a123456',is_plus=1, expiration_date=datetime.now(), state=1, email='123@qq.com', remark='示例用户'))
                 db.add(ShareCarDB(carid='car123456', car_type=1, state=1, plus_ex_time=datetime.now()))
-                # db.add(ShareConfigDB(key='test', value='test01'))
+                db.add(ShareConfigDB(key='test', value='test01'))
                 db.commit()
                 self.logger.info(f'成功写入示例数据')
             except Exception as e:

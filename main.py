@@ -11,6 +11,6 @@ from src.app import app
 from src.tasks import GoTasks
 if __name__ == "__main__":
     # 启动定时任务
-    GoTasks()
+    # GoTasks()
     # 启动fastapi
     uvicorn.run(app, host="0.0.0.0", port=CONFIG["PORT"])
